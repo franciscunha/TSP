@@ -103,10 +103,10 @@ double solutionCost (vector <int> solution){
     return cost;
 }
 
-//Dentro do if salvar o melhor i e j e fazer a troca depois dos fors.
-//Tirar as cópias de s.
+
 vector<int> swap (vector<int> s){
     vector<int> bestNeighbour = s;
+    int best_i = 0, best_j = 0;
     double currentBestDelta = 0; //0 = no change
     double delta;
 
@@ -118,21 +118,24 @@ vector<int> swap (vector<int> s){
 
             if(delta < currentBestDelta){
                 currentBestDelta = delta;
-                
-                bestNeighbour = s;
-                bestNeighbour.erase(bestNeighbour.begin() + i);
-                bestNeighbour.insert(bestNeighbour.begin() + i, s[j]);
-                bestNeighbour.erase(bestNeighbour.begin() + j);
-                bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
+
+                best_i = i;
+                best_j = j;
             }
         }
     }
+
+    bestNeighbour.erase(bestNeighbour.begin() + best_i);
+    bestNeighbour.insert(bestNeighbour.begin() + best_i, s[best_j]);
+    bestNeighbour.erase(bestNeighbour.begin() + best_j);
+    bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i]);
 
     return bestNeighbour;
 }
 
 vector<int> flip (vector<int> s){
     vector<int> bestNeighbour = s;
+    int best_i = 0, best_j = 0;
     double currentBestDelta = 0; //0 = no change
     double delta;
 
@@ -143,16 +146,18 @@ vector<int> flip (vector<int> s){
 
             if(delta < currentBestDelta){
                 currentBestDelta = delta;
-                
-                bestNeighbour = s;
-                for(int k = i; k < j; k++){
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                }  
-                for(int k = i; k < j; k++){
-                    bestNeighbour.insert(bestNeighbour.begin() + i, s[k]);
-                }
+
+                best_i = i;
+                best_j = j;                
             }
         }
+    }
+
+    for(int k = best_i; k < best_j; k++){
+        bestNeighbour.erase(bestNeighbour.begin() + best_i);
+    }  
+    for(int k = best_i; k < best_j; k++){
+        bestNeighbour.insert(bestNeighbour.begin() + best_i, s[k]);
     }
 
     return bestNeighbour;
@@ -160,6 +165,7 @@ vector<int> flip (vector<int> s){
 
 vector<int> reinsertion (vector<int> s){
     vector<int> bestNeighbour = s;
+    int best_i = 0, best_j = 0;
     double currentBestDelta = 0; //0 = no change
     double delta;
 
@@ -175,9 +181,8 @@ vector<int> reinsertion (vector<int> s){
                 if(delta < currentBestDelta){
                     currentBestDelta = delta;
                     
-                    bestNeighbour = s;
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
+                    best_i = i;
+                    best_j = j;
                 }
             }else if(i < j){
                 delta = costMatrix[s[i]][s[j]] + costMatrix[s[i]][s[j+1]] + costMatrix[s[i-1]][s[i+1]]
@@ -186,19 +191,22 @@ vector<int> reinsertion (vector<int> s){
                 if(delta < currentBestDelta){
                     currentBestDelta = delta;
                     
-                    bestNeighbour = s;
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
+                    best_i = i;
+                    best_j = j;
                 }
             }
         }
     }
+
+    bestNeighbour.erase(bestNeighbour.begin() + best_i);
+    bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i]);
 
     return bestNeighbour;
 }
 
 vector<int> oropt2 (vector<int> s){
     vector<int> bestNeighbour = s;
+    int best_i = 0, best_j = 0;
     double currentBestDelta = 0; //0 = no change
     double delta;
 
@@ -214,11 +222,8 @@ vector<int> oropt2 (vector<int> s){
                 if(delta < currentBestDelta){
                     currentBestDelta = delta;
 
-                    bestNeighbour = s;
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i+1]);
+                    best_i = i;
+                    best_j = j;                    
                 }
             }else if(j < i){
                 delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+1]][s[j]] + costMatrix[s[i-1]][s[i+2]]
@@ -228,13 +233,24 @@ vector<int> oropt2 (vector<int> s){
                     currentBestDelta = delta;
 
                     bestNeighbour = s;
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i+1]);
-                    bestNeighbour.erase(bestNeighbour.begin() + i+1);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
+                    best_i = i;
+                    best_j = j;
                 }
             }
         }
+    }
+
+    if(best_i < best_j){
+        bestNeighbour.erase(bestNeighbour.begin() + best_i);
+        bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i]);
+        bestNeighbour.erase(bestNeighbour.begin() + best_i);
+        bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i+1]);
+    }
+    else if(best_j < best_i){
+        bestNeighbour.erase(bestNeighbour.begin() + best_i);
+        bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i+1]);
+        bestNeighbour.erase(bestNeighbour.begin() + best_i+1);
+        bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i]);
     }
 
     return bestNeighbour;
@@ -242,6 +258,7 @@ vector<int> oropt2 (vector<int> s){
 
 vector<int> oropt3 (vector<int> s){
     vector<int> bestNeighbour = s;
+    int best_i = 0, best_j = 0;
     double currentBestDelta = 0; //0 = no change
     double delta;
 
@@ -257,14 +274,8 @@ vector<int> oropt3 (vector<int> s){
                 if(delta < currentBestDelta){
                     currentBestDelta = delta;
 
-                    bestNeighbour = s;
-                
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i+1]);
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i+2]);
+                    best_i = i;
+                    best_j = j;
                 }
             }else if(j < i){
                 delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+2]][s[j]] + costMatrix[s[i-1]][s[i+3]] 
@@ -273,16 +284,29 @@ vector<int> oropt3 (vector<int> s){
                 if(delta < currentBestDelta){
                     currentBestDelta = delta;
 
-                    bestNeighbour = s;
-                
-                    bestNeighbour.erase(bestNeighbour.begin() + i);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i+2]);
-                    bestNeighbour.erase(bestNeighbour.begin() + i+1);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i+1]);
-                    bestNeighbour.erase(bestNeighbour.begin() + i+2);
-                    bestNeighbour.insert(bestNeighbour.begin() + j, s[i]);
+                    best_i = i;
+                    best_j = j;
                 }
             }
+        }
+    }
+
+    if (best_i != best_j || best_j != best_i+1 || best_j != best_i-1){
+        if(best_i < best_j){
+            bestNeighbour.erase(bestNeighbour.begin() + best_i);
+            bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i]);
+            bestNeighbour.erase(bestNeighbour.begin() + best_i);
+            bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i+1]);
+            bestNeighbour.erase(bestNeighbour.begin() + best_i);
+            bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i+2]);
+        }
+        else if(best_j < best_i){
+            bestNeighbour.erase(bestNeighbour.begin() + best_i);
+            bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i+2]);
+            bestNeighbour.erase(bestNeighbour.begin() + best_i+1);
+            bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i+1]);
+            bestNeighbour.erase(bestNeighbour.begin() + best_i+2);
+            bestNeighbour.insert(bestNeighbour.begin() + best_j, s[best_i]);
         }
     }
 
