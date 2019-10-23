@@ -204,6 +204,8 @@ vector<int> oropt2 (vector<int> s){
     for(int j = 1; j < s.size(); j++){
         for(int i = 1; i < s.size() - 2; i++){
 
+            if (j == i+1) continue;
+
             delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+1]][s[j]] + costMatrix[s[i-1]][s[i+2]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i+1]][s[i+2]] - costMatrix[s[j]][s[j-1]];
 
