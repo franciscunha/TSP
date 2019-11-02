@@ -104,7 +104,7 @@ double solutionCost (vector <int> solution){
 }
 
 
-vector<int> swap (vector<int> s, double *cost){
+vector<int> swap (vector<int> s, double *neighbourCost, const double currentCost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -137,19 +137,20 @@ vector<int> swap (vector<int> s, double *cost){
             s.erase(s.begin() + best_i);
         }
 
-        *cost += bestDelta;
+        *neighbourCost = currentCost + bestDelta;
     }
 
     return s;
 }
 
-vector<int> flip (vector<int> s, double *cost){
+vector<int> flip (vector<int> s, double *neighbourCost, const double currentCost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
 
     for(int j = 3; j < s.size() - 1; j++){
         for(int i = 1; i < j - 1; i++){
+            if(i == j) continue;
 
             delta = costMatrix[s[i]][s[j]] + costMatrix[s[j-1]][s[i-1]] - costMatrix[s[i-1]][s[i]] - costMatrix[s[j-1]][s[j]];
 
@@ -170,19 +171,20 @@ vector<int> flip (vector<int> s, double *cost){
             s.erase(s.begin() + best_j);
         }
 
-        *cost += bestDelta;
+        *neighbourCost = currentCost + bestDelta;
     }
 
     return s;
 }
 
-vector<int> reinsertion (vector<int> s, double *cost){
+vector<int> reinsertion (vector<int> s, double *neighbourCost, const double currentCost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
 
     for(int j = 1; j < s.size(); j++){
         for(int i = 1; i < s.size() - 1; i++){
+            if(i == j || j == i+1 || i == j+1) continue;
 
             delta = costMatrix[s[i]][s[j]] + costMatrix[s[i]][s[j-1]] + costMatrix[s[i-1]][s[i+1]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i]][s[i+1]] - costMatrix[s[j]][s[j-1]];
@@ -202,13 +204,13 @@ vector<int> reinsertion (vector<int> s, double *cost){
         if(best_j < best_i) best_i++;
         s.erase(s.begin() + best_i);
 
-        *cost += bestDelta;
+        *neighbourCost = currentCost + bestDelta;
     }
 
     return s;
 }
 
-vector<int> oropt2 (vector<int> s, double *cost){
+vector<int> oropt2 (vector<int> s, double *neighbourCost, const double currentCost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -216,7 +218,7 @@ vector<int> oropt2 (vector<int> s, double *cost){
     for(int j = 1; j < s.size(); j++){
         for(int i = 1; i < s.size() - 2; i++){
 
-            if (j == i+1) continue;
+            if (i == j || j == i+1 || j == i+2) continue;
 
             delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+1]][s[j]] + costMatrix[s[i-1]][s[i+2]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i+1]][s[i+2]] - costMatrix[s[j]][s[j-1]];
@@ -245,13 +247,13 @@ vector<int> oropt2 (vector<int> s, double *cost){
             s.erase(s.begin() + best_i+2);
         }
 
-        *cost += bestDelta;
+        *neighbourCost = currentCost + bestDelta;
     }
 
     return s;
 }
 
-vector<int> oropt3 (vector<int> s, double *cost){
+vector<int> oropt3 (vector<int> s, double *neighbourCost, const double currentCost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -259,7 +261,7 @@ vector<int> oropt3 (vector<int> s, double *cost){
     for(int j = 1; j < s.size(); j++){
         for(int i = 1; i < s.size() - 3; i++){
 
-            if (j == i+1 || j == i+2) continue;
+            if (i == j || j == i+1 || j == i+2 || j == i+3) continue;
 
             delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+2]][s[j]] + costMatrix[s[i-1]][s[i+3]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i+2]][s[i+3]] - costMatrix[s[j]][s[j-1]];
@@ -291,7 +293,7 @@ vector<int> oropt3 (vector<int> s, double *cost){
             s.erase(s.begin() + best_i+3);
         }
 
-        *cost += bestDelta;
+        *neighbourCost = currentCost + bestDelta;
     }
 
     return s;
@@ -303,8 +305,8 @@ vector<int> RVND (vector<int> s, double *mainCost){
     int ngbh_n;
 
     double currentBestCost = *mainCost;
-    vector<int> neighbour_s;
-    double neighbourCost = currentBestCost;
+    vector<int> neighbour_s = s;
+    double neighbourCost = numeric_limits<double>::max();
 
     while(!ngbhList.empty())
     {
@@ -312,19 +314,19 @@ vector<int> RVND (vector<int> s, double *mainCost){
 
         switch(ngbh_n){
             case N1:
-                neighbour_s = swap(s, &neighbourCost);
+                neighbour_s = swap(s, &neighbourCost, currentBestCost);
                 break;
             case N2:
-                neighbour_s = flip(s, &neighbourCost);
+                neighbour_s = flip(s, &neighbourCost, currentBestCost);
                 break;
             case N3:
-                neighbour_s = reinsertion(s, &neighbourCost);
+                neighbour_s = reinsertion(s, &neighbourCost, currentBestCost);
                 break;
             case N4:
-                neighbour_s = oropt2(s, &neighbourCost);
+                neighbour_s = oropt2(s, &neighbourCost, currentBestCost);
                 break;
             case N5:
-                neighbour_s = oropt3(s, &neighbourCost);
+                neighbour_s = oropt3(s, &neighbourCost, currentBestCost);
                 break;
         }
 
@@ -334,8 +336,6 @@ vector<int> RVND (vector<int> s, double *mainCost){
 
             ngbhList = {N1, N2, N3, N4, N5};
         }else{
-            neighbourCost = currentBestCost;
-
             ngbhList.erase(std::remove(ngbhList.begin(), ngbhList.end(), ngbh_n), ngbhList.end());
         }
     }
