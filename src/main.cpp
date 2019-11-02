@@ -79,7 +79,7 @@ vector<int> construction(double alpha) {
         int listFraction = alpha * insertionCosts.size();
         if(listFraction < 1)
             listFraction = 1;
-    
+
         int x = rand() % listFraction;
         solution.insert(solution.begin() + insertionCosts[x].edgeRemoved, insertionCosts[x].nodeInserted);
 
@@ -104,7 +104,7 @@ double solutionCost (vector <int> solution){
 }
 
 
-vector<int> swap (vector<int> s){
+vector<int> swap (vector<int> s, double *cost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -124,22 +124,26 @@ vector<int> swap (vector<int> s){
         }
     }
 
-    if(best_i < best_j){
-        s.insert(s.begin() + best_i + 1, s[best_j]);
-        s.insert(s.begin() + best_j + 2, s[best_i]);
-        s.erase(s.begin() + best_i);
-        s.erase(s.begin() + best_j);
-    }else if(best_j < best_i){
-        s.insert(s.begin() + best_j + 1, s[best_i]);
-        s.insert(s.begin() + best_i + 2, s[best_j]);
-        s.erase(s.begin() + best_j);
-        s.erase(s.begin() + best_i);    
+    if(bestDelta < 0){
+        if(best_i < best_j){
+            s.insert(s.begin() + best_i + 1, s[best_j]);
+            s.insert(s.begin() + best_j + 2, s[best_i]);
+            s.erase(s.begin() + best_i);
+            s.erase(s.begin() + best_j);
+        }else if(best_j < best_i){
+            s.insert(s.begin() + best_j + 1, s[best_i]);
+            s.insert(s.begin() + best_i + 2, s[best_j]);
+            s.erase(s.begin() + best_j);
+            s.erase(s.begin() + best_i);
+        }
+
+        *cost += bestDelta;
     }
 
     return s;
 }
 
-vector<int> flip (vector<int> s){
+vector<int> flip (vector<int> s, double *cost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -153,22 +157,26 @@ vector<int> flip (vector<int> s){
                 bestDelta = delta;
 
                 best_i = i;
-                best_j = j;                
+                best_j = j;
             }
         }
     }
 
-    for(int k = best_i, l = 0; k < best_j; k++, l++){
-        s.insert(s.begin() + best_i, s[k+l]);
-    }
-    for(int k = best_i; k < best_j; k++){
-        s.erase(s.begin() + best_j);
+    if(bestDelta < 0){
+        for(int k = best_i, l = 0; k < best_j; k++, l++){
+            s.insert(s.begin() + best_i, s[k+l]);
+        }
+        for(int k = best_i; k < best_j; k++){
+            s.erase(s.begin() + best_j);
+        }
+
+        *cost += bestDelta;
     }
 
     return s;
 }
 
-vector<int> reinsertion (vector<int> s){
+vector<int> reinsertion (vector<int> s, double *cost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -181,22 +189,26 @@ vector<int> reinsertion (vector<int> s){
 
             if(delta < bestDelta){
                 bestDelta = delta;
-                
+
                 best_i = i;
                 best_j = j;
             }
-            
+
         }
     }
 
-    s.insert(s.begin() + best_j, s[best_i]);
-    if(best_j < best_i) best_i++;
-    s.erase(s.begin() + best_i);
+    if(bestDelta < 0){
+        s.insert(s.begin() + best_j, s[best_i]);
+        if(best_j < best_i) best_i++;
+        s.erase(s.begin() + best_i);
+
+        *cost += bestDelta;
+    }
 
     return s;
 }
 
-vector<int> oropt2 (vector<int> s){
+vector<int> oropt2 (vector<int> s, double *cost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -215,27 +227,31 @@ vector<int> oropt2 (vector<int> s){
                 best_i = i;
                 best_j = j;
             }
-            
+
         }
     }
 
-    if(best_i < best_j){
-        s.insert(s.begin() + best_j, s[best_i+1]);
-        s.insert(s.begin() + best_j, s[best_i]);
-        s.erase(s.begin() + best_i);
-        s.erase(s.begin() + best_i);
-    }
-    else if(best_j < best_i){
-        s.insert(s.begin() + best_j, s[best_i+1]);
-        s.insert(s.begin() + best_j, s[best_i+1]);
-        s.erase(s.begin() + best_i+2);
-        s.erase(s.begin() + best_i+2);
+    if(bestDelta < 0){
+        if(best_i < best_j){
+            s.insert(s.begin() + best_j, s[best_i+1]);
+            s.insert(s.begin() + best_j, s[best_i]);
+            s.erase(s.begin() + best_i);
+            s.erase(s.begin() + best_i);
+        }
+        else if(best_j < best_i){
+            s.insert(s.begin() + best_j, s[best_i+1]);
+            s.insert(s.begin() + best_j, s[best_i+1]);
+            s.erase(s.begin() + best_i+2);
+            s.erase(s.begin() + best_i+2);
+        }
+
+        *cost += bestDelta;
     }
 
     return s;
 }
 
-vector<int> oropt3 (vector<int> s){
+vector<int> oropt3 (vector<int> s, double *cost){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -244,8 +260,8 @@ vector<int> oropt3 (vector<int> s){
         for(int i = 1; i < s.size() - 3; i++){
 
             if (j == i+1 || j == i+2) continue;
-            
-            delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+2]][s[j]] + costMatrix[s[i-1]][s[i+3]] 
+
+            delta = costMatrix[s[i]][s[j-1]] + costMatrix[s[i+2]][s[j]] + costMatrix[s[i-1]][s[i+3]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i+2]][s[i+3]] - costMatrix[s[j]][s[j-1]];
 
             if(delta < bestDelta){
@@ -257,33 +273,38 @@ vector<int> oropt3 (vector<int> s){
         }
     }
 
-    if(best_i < best_j){
-        s.insert(s.begin() + best_j, s[best_i+2]);
-        s.insert(s.begin() + best_j, s[best_i+1]);
-        s.insert(s.begin() + best_j, s[best_i]);
-        s.erase(s.begin() + best_i);
-        s.erase(s.begin() + best_i);
-        s.erase(s.begin() + best_i);
-    }
-    else if(best_j < best_i){
-        s.insert(s.begin() + best_j, s[best_i+2]);
-        s.insert(s.begin() + best_j, s[best_i+2]);
-        s.insert(s.begin() + best_j, s[best_i+2]);
-        s.erase(s.begin() + best_i+3);
-        s.erase(s.begin() + best_i+3);
-        s.erase(s.begin() + best_i+3);
+    if(bestDelta < 0){
+        if(best_i < best_j){
+            s.insert(s.begin() + best_j, s[best_i+2]);
+            s.insert(s.begin() + best_j, s[best_i+1]);
+            s.insert(s.begin() + best_j, s[best_i]);
+            s.erase(s.begin() + best_i);
+            s.erase(s.begin() + best_i);
+            s.erase(s.begin() + best_i);
+        }
+        else if(best_j < best_i){
+            s.insert(s.begin() + best_j, s[best_i+2]);
+            s.insert(s.begin() + best_j, s[best_i+2]);
+            s.insert(s.begin() + best_j, s[best_i+2]);
+            s.erase(s.begin() + best_i+3);
+            s.erase(s.begin() + best_i+3);
+            s.erase(s.begin() + best_i+3);
+        }
+
+        *cost += bestDelta;
     }
 
     return s;
 }
 
-vector<int> RVND (vector<int> s){
+//Problema: neighbourCost só abaixa, infinitamente
+vector<int> RVND (vector<int> s, double *mainCost){
     vector<int> ngbhList = {N1, N2, N3, N4, N5};
     int ngbh_n;
 
+    double currentBestCost = *mainCost;
     vector<int> neighbour_s;
-    double s_cost = solutionCost(s);
-    double neighbour_s_cost;
+    double neighbourCost = currentBestCost;
 
     while(!ngbhList.empty())
     {
@@ -291,37 +312,39 @@ vector<int> RVND (vector<int> s){
 
         switch(ngbh_n){
             case N1:
-                neighbour_s = swap(s);
+                neighbour_s = swap(s, &neighbourCost);
                 break;
             case N2:
-                neighbour_s = flip(s);
+                neighbour_s = flip(s, &neighbourCost);
                 break;
             case N3:
-                neighbour_s = reinsertion(s);
+                neighbour_s = reinsertion(s, &neighbourCost);
                 break;
             case N4:
-                neighbour_s = oropt2(s);
+                neighbour_s = oropt2(s, &neighbourCost);
                 break;
             case N5:
-                neighbour_s = oropt3(s);
+                neighbour_s = oropt3(s, &neighbourCost);
                 break;
         }
 
-        neighbour_s_cost = solutionCost(neighbour_s);
-        if(neighbour_s_cost < s_cost){
+        if(neighbourCost < currentBestCost){
             s = neighbour_s;
-            s_cost = neighbour_s_cost;
+            currentBestCost = neighbourCost;
 
             ngbhList = {N1, N2, N3, N4, N5};
         }else{
+            neighbourCost = currentBestCost;
+
             ngbhList.erase(std::remove(ngbhList.begin(), ngbhList.end(), ngbh_n), ngbhList.end());
         }
     }
 
+    *mainCost = currentBestCost;
     return s;
 }
 
-vector<int> perturb (vector<int> s){
+vector<int> perturb (vector<int> s, double *cost){
     int alphaSize = ( rand() % (dimension/10) ) + 2;
     int alphaStart = (rand() % (dimension-2) ) + 1;
     int alphaEnd = alphaStart + alphaSize;
@@ -333,7 +356,7 @@ vector<int> perturb (vector<int> s){
         alphaStart = (rand() % (dimension-2) ) + 1;
         alphaEnd = alphaStart + alphaSize;
     }
-    
+
     int betaSize = ( rand() % (dimension/10) ) + 2;
     int betaStart = (rand() % (dimension-2-alphaEnd) ) + alphaEnd + 1;
     int betaEnd = betaStart + betaSize;
@@ -345,28 +368,28 @@ vector<int> perturb (vector<int> s){
         betaStart = (rand() % (dimension-2-alphaEnd) ) + alphaEnd;
         betaEnd = betaStart + betaSize;
     }
-       
+
     vector<int> s_copy = s;
 
 
     //Invert subsegment elements
     for(int i = 0; i < alphaSize; i++){
         s.erase(s.begin() + alphaStart);
-    }  
+    }
     for(int i = 0; i < alphaSize; i++){
         s.insert(s.begin() + alphaStart, s_copy[alphaStart + i]);
     }
 
     for(int i = 0; i < betaSize; i++){
         s.erase(s.begin() + betaStart);
-    }  
+    }
     for(int i = 0; i < betaSize; i++){
         s.insert(s.begin() + betaStart, s_copy[betaStart + i]);
     }
 
     //Invert subsegment order
     s_copy = s;
-    
+
     for(int i = betaEnd-1; i >= betaStart; i--){
         s.insert(s.begin() + alphaStart, s_copy[i]);
     }
@@ -389,7 +412,12 @@ vector<int> perturb (vector<int> s){
         s.erase(s.begin() + betaStart + offset + alphaSize);
     }
 
+    double delta = costMatrix[betaEnd-1][alphaStart-1] + costMatrix[betaStart][alphaEnd]
+    + costMatrix[alphaEnd-1][betaStart-1] + costMatrix[alphaStart][betaEnd]
+    - costMatrix[alphaStart][alphaStart-1] - costMatrix[alphaEnd][alphaEnd-1]
+    - costMatrix[betaStart][betaStart-1] - costMatrix[betaEnd][betaEnd-1]; //insert cost difference equation
 
+    *cost += delta;
     return s;
 }
 
@@ -399,8 +427,8 @@ int main(int argc, char** argv) {
     srand(time(NULL));
 
     readData(argc, argv, &dimension, &costMatrix);
-    //cout << "\tCOST MATRIX: \n";
-    //printCostMatrix();
+    cout << "\tCOST MATRIX: \n";
+    printCostMatrix();
 
     int I_MAX = 50, I_ILS;
     if(dimension >= 150){
@@ -410,26 +438,29 @@ int main(int argc, char** argv) {
     }
 
     vector<int> solutionAlpha, solutionBeta, solutionOmega;
-    double costBeta, costOmega = numeric_limits<double>::max();
-    
+    double costAlpha, costBeta, costOmega = numeric_limits<double>::max();
+
     for(int i = 0; i < I_MAX; i++)
     {
         double alpha = (rand() % 100)/100;
         solutionAlpha = construction(alpha);
         solutionBeta = solutionAlpha;
 
-        for(int iterILS = 0; iterILS < I_ILS; iterILS++){
-            solutionAlpha = RVND(solutionAlpha);
+        costAlpha = solutionCost(solutionAlpha);
+        costBeta = costAlpha;
 
-            if(solutionCost(solutionAlpha) < solutionCost(solutionBeta)){
+        for(int iterILS = 0; iterILS < I_ILS; iterILS++){
+            solutionAlpha = RVND(solutionAlpha, &costAlpha);
+
+            if(costAlpha < costBeta){
                 solutionBeta = solutionAlpha;
+                costBeta = costAlpha;
                 iterILS = 0;
             }
 
-            solutionAlpha = perturb(solutionBeta);
+            solutionAlpha = perturb(solutionBeta, &costAlpha);
         }
 
-        costBeta = solutionCost(solutionBeta);
         if(costBeta < costOmega){
             solutionOmega = solutionBeta;
             costOmega = costBeta;
@@ -445,7 +476,7 @@ int main(int argc, char** argv) {
         cout << k << ' ';
     }
     cout << "\n\n\n\n" << "\tCOST: " << costOmega << "\n\n";
-    cout << "\tTIME: " << elapsedSeconds.count() << "s\n\n\n";   
+    cout << "\tTOTAL TIME: " << elapsedSeconds.count() << "s\n";
 
     return 0;
 }
