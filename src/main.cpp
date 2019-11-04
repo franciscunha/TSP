@@ -104,7 +104,7 @@ double solutionCost (vector <int> solution){
 }
 
 
-vector<int> swap (vector<int> s, double *neighbourCost, const double currentCost){
+vector<int> swap (vector<int> s, double *pDelta){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -137,13 +137,15 @@ vector<int> swap (vector<int> s, double *neighbourCost, const double currentCost
             s.erase(s.begin() + best_i);
         }
 
-        *neighbourCost = currentCost + bestDelta;
+        *pDelta = bestDelta;
+    }else{
+        *pDelta = 0;
     }
 
     return s;
 }
 
-vector<int> flip (vector<int> s, double *neighbourCost, const double currentCost){
+vector<int> flip (vector<int> s, double *pDelta){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -171,13 +173,15 @@ vector<int> flip (vector<int> s, double *neighbourCost, const double currentCost
             s.erase(s.begin() + best_j);
         }
 
-        *neighbourCost = currentCost + bestDelta;
+        *pDelta = bestDelta;
+    }else{
+        *pDelta = 0;
     }
 
     return s;
 }
 
-vector<int> reinsertion (vector<int> s, double *neighbourCost, const double currentCost){
+vector<int> reinsertion (vector<int> s, double *pDelta){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -204,13 +208,15 @@ vector<int> reinsertion (vector<int> s, double *neighbourCost, const double curr
         if(best_j < best_i) best_i++;
         s.erase(s.begin() + best_i);
 
-        *neighbourCost = currentCost + bestDelta;
+        *pDelta = bestDelta;
+    }else{
+        *pDelta = 0;
     }
 
     return s;
 }
 
-vector<int> oropt2 (vector<int> s, double *neighbourCost, const double currentCost){
+vector<int> oropt2 (vector<int> s, double *pDelta){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -247,13 +253,15 @@ vector<int> oropt2 (vector<int> s, double *neighbourCost, const double currentCo
             s.erase(s.begin() + best_i+2);
         }
 
-        *neighbourCost = currentCost + bestDelta;
+        *pDelta = bestDelta;
+    }else{
+        *pDelta = 0;
     }
 
     return s;
 }
 
-vector<int> oropt3 (vector<int> s, double *neighbourCost, const double currentCost){
+vector<int> oropt3 (vector<int> s, double *pDelta){
     int best_i = 0, best_j = 0;
     double bestDelta = 0; //0 = no change
     double delta;
@@ -293,7 +301,9 @@ vector<int> oropt3 (vector<int> s, double *neighbourCost, const double currentCo
             s.erase(s.begin() + best_i+3);
         }
 
-        *neighbourCost = currentCost + bestDelta;
+        *pDelta = bestDelta;
+    }else{
+        *pDelta = 0;
     }
 
     return s;
@@ -305,6 +315,7 @@ vector<int> RVND (vector<int> s, double *mainCost){
     int ngbh_n;
 
     double currentBestCost = *mainCost;
+    double delta = 0;
     vector<int> neighbour_s = s;
     double neighbourCost = numeric_limits<double>::max();
 
@@ -314,21 +325,23 @@ vector<int> RVND (vector<int> s, double *mainCost){
 
         switch(ngbh_n){
             case N1:
-                neighbour_s = swap(s, &neighbourCost, currentBestCost);
+                neighbour_s = swap(s, &delta);
                 break;
             case N2:
-                neighbour_s = flip(s, &neighbourCost, currentBestCost);
+                neighbour_s = flip(s, &delta);
                 break;
             case N3:
-                neighbour_s = reinsertion(s, &neighbourCost, currentBestCost);
+                neighbour_s = reinsertion(s, &delta);
                 break;
             case N4:
-                neighbour_s = oropt2(s, &neighbourCost, currentBestCost);
+                neighbour_s = oropt2(s, &delta);
                 break;
             case N5:
-                neighbour_s = oropt3(s, &neighbourCost, currentBestCost);
+                neighbour_s = oropt3(s, &delta);
                 break;
         }
+        neighbourCost = currentBestCost + delta;
+        delta = 0;
 
         if(neighbourCost < currentBestCost){
             s = neighbour_s;
