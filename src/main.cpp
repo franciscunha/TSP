@@ -15,9 +15,6 @@ enum NL{N1, N2, N3, N4, N5};
 double ** costMatrix;
 int dimension;
 
-//TEMP DEBUGGING VARIABLES
-bool error_rvnd = false, error_perturb = false;
-
 typedef struct{
     double cost;
     int nodeInserted;
@@ -303,7 +300,6 @@ vector<int> oropt3 (vector<int> s, double *neighbourCost, const double currentCo
     return s;
 }
 
-//Problema: neighbourCost só abaixa, infinitamente
 vector<int> RVND (vector<int> s, double *mainCost){
     vector<int> ngbhList = {N1, N2, N3, N4, N5};
     int ngbh_n;
@@ -332,11 +328,6 @@ vector<int> RVND (vector<int> s, double *mainCost){
             case N5:
                 neighbour_s = oropt3(s, &neighbourCost, currentBestCost);
                 break;
-        }
-        
-        //DEBUGGING
-        if(neighbourCost != solutionCost(neighbour_s) || neighbourCost < 3323){
-            error_rvnd = true;
         }
 
         if(neighbourCost < currentBestCost){
@@ -427,36 +418,7 @@ vector<int> perturb (vector<int> s, double *cost){
         s.erase(s.begin() + betaStart + offset + alphaSize);
     }
 
-/*  -cost[s[ai]][s[ai-1]]   -cost[s[aj]][s[aj-1]] -cost[s[bi]][s[bi-1]]   -cost[s[bj]][s[bj-1]]
-    +cost[s[ai-1]][s[bj-1]] +cost[s[bi]][s[aj]]   +cost[s[bi-1]][s[aj-1]] +cost[s[ai]][s[bj]];
-*/
     *cost += delta;
-
-    //assert(*cost != solutionCost(s));
-    //assert(*cost < 3323);
-
-    /*cout << endl << "Delta: " << delta << endl;
-    cout << "alphaStart: " << alphaStart << " alphaEnd: " << alphaEnd << endl;
-    cout << "betaStart: " << betaStart << " betaEnd: " << betaEnd << endl << endl;
-    cout << "CUSTO NA MAO: " << solutionCost(s);*/
-    
-    /*if(error_perturb && !error_rvnd){
-        cout << "ERRO PERTURB E !ERRO RVND" << endl;
-        cout << "Delta: " << delta << " cost:" << *cost << endl;//custo deu diferente calculando na mao
-        cout << "alphaStart: " << alphaStart << " alphaEnd: " << alphaEnd << endl;
-        cout << "betaStart: " << betaStart << " betaEnd: " << betaEnd << endl << "s: ";
-        for(auto k : s){
-            cout << k << ' ';
-        }
-        cout << endl;
-    }
-    if(!error_perturb && error_rvnd){
-        cout << "!ERRO PERTURB E ERRO RVND" << endl;
-    }
-    if(error_rvnd && error_perturb){
-        cout << "ERRO NOS DOIS" << endl;
-        getchar();
-    }*/
 
     return s;
 }
@@ -480,17 +442,6 @@ int main(int argc, char** argv) {
     vector<int> solutionAlpha, solutionBeta, solutionOmega;
     double costAlpha, costBeta, costOmega = numeric_limits<double>::max();
 
-    //DEBUGGING
-    /*double alpha = (rand() % 100)/100;
-    solutionOmega = construction(alpha);
-    costOmega = solutionCost(solutionOmega);
-    cout << "\n\n\n" << "\tSOLUTION pre perturb: \n";
-    for(auto k : solutionOmega){
-        cout << k << ' ';
-    }
-    cout << "\n\n\n\n" << "\tCOST pre perturb: " << costOmega << "\n\n";
-    solutionOmega = perturb(solutionOmega, &costOmega);*/
-
     for(int i = 0; i < I_MAX; i++)
     {
         double alpha = (rand() % 100)/100;
@@ -501,7 +452,6 @@ int main(int argc, char** argv) {
         costBeta = costAlpha;
 
         for(int iterILS = 0; iterILS < I_ILS; iterILS++){
-            //cout << "iterILS: " << iterILS << " I_MAX: " << i << endl;
             solutionAlpha = RVND(solutionAlpha, &costAlpha);
 
             if(costAlpha < costBeta){
