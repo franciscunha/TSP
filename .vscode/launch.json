@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/francisco/Desktop/University/LASER/TSP/tsp",
-            "args": ["instances/ch150.tsp"],
+            "args": ["instances/bays29.tsp"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
