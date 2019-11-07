@@ -6,6 +6,7 @@
 #include <ctime>
 #include <chrono>
 #include <limits>
+#include <assert.h>
 
 using namespace std;
 
@@ -333,6 +334,7 @@ vector<int> RVND (vector<int> s, double *mainCost){
                 break;
         }
         
+        //DEBUGGING
         if(neighbourCost != solutionCost(neighbour_s) || neighbourCost < 3323){
             error_rvnd = true;
         }
@@ -375,6 +377,12 @@ vector<int> perturb (vector<int> s, double *cost){
         betaStart = (rand() % (dimension-2-alphaEnd) ) + alphaEnd + 1;
         betaEnd = betaStart + betaSize;
     }
+
+    //Gets cost difference after movement is made
+    double delta = costMatrix[s[betaEnd-1]][s[alphaStart-1]] + costMatrix[s[betaStart]][s[alphaEnd]]
+    + costMatrix[s[alphaEnd-1]][s[betaStart-1]] + costMatrix[s[alphaStart]][s[betaEnd]]
+    - costMatrix[s[alphaStart]][s[alphaStart-1]] - costMatrix[s[alphaEnd]][s[alphaEnd-1]]
+    - costMatrix[s[betaStart]][s[betaStart-1]] - costMatrix[s[betaEnd]][s[betaEnd-1]];
 
     vector<int> s_copy = s;
 
@@ -419,18 +427,20 @@ vector<int> perturb (vector<int> s, double *cost){
         s.erase(s.begin() + betaStart + offset + alphaSize);
     }
 
-    double delta = costMatrix[s[betaEnd-1]][s[alphaStart-1]] + costMatrix[s[betaStart]][s[alphaEnd]]
-    + costMatrix[s[alphaEnd-1]][s[betaStart-1]] + costMatrix[s[alphaStart]][s[betaEnd]]
-    - costMatrix[s[alphaStart]][s[alphaStart-1]] - costMatrix[s[alphaEnd]][s[alphaEnd-1]]
-    - costMatrix[s[betaStart]][s[betaStart-1]] - costMatrix[s[betaEnd]][s[betaEnd-1]];
-
+/*  -cost[s[ai]][s[ai-1]]   -cost[s[aj]][s[aj-1]] -cost[s[bi]][s[bi-1]]   -cost[s[bj]][s[bj-1]]
+    +cost[s[ai-1]][s[bj-1]] +cost[s[bi]][s[aj]]   +cost[s[bi-1]][s[aj-1]] +cost[s[ai]][s[bj]];
+*/
     *cost += delta;
 
-    if(*cost != solutionCost(s) || *cost < 3323){
-        error_perturb = true;
-    }
+    //assert(*cost != solutionCost(s));
+    //assert(*cost < 3323);
+
+    /*cout << endl << "Delta: " << delta << endl;
+    cout << "alphaStart: " << alphaStart << " alphaEnd: " << alphaEnd << endl;
+    cout << "betaStart: " << betaStart << " betaEnd: " << betaEnd << endl << endl;
+    cout << "CUSTO NA MAO: " << solutionCost(s);*/
     
-    if(error_perturb && !error_rvnd){
+    /*if(error_perturb && !error_rvnd){
         cout << "ERRO PERTURB E !ERRO RVND" << endl;
         cout << "Delta: " << delta << " cost:" << *cost << endl;//custo deu diferente calculando na mao
         cout << "alphaStart: " << alphaStart << " alphaEnd: " << alphaEnd << endl;
@@ -443,8 +453,9 @@ vector<int> perturb (vector<int> s, double *cost){
     if(!error_perturb && error_rvnd){
         cout << "!ERRO PERTURB E ERRO RVND" << endl;
     }
-    /*if(error_rvnd && error_perturb){
+    if(error_rvnd && error_perturb){
         cout << "ERRO NOS DOIS" << endl;
+        getchar();
     }*/
 
     return s;
@@ -468,6 +479,17 @@ int main(int argc, char** argv) {
 
     vector<int> solutionAlpha, solutionBeta, solutionOmega;
     double costAlpha, costBeta, costOmega = numeric_limits<double>::max();
+
+    //DEBUGGING
+    /*double alpha = (rand() % 100)/100;
+    solutionOmega = construction(alpha);
+    costOmega = solutionCost(solutionOmega);
+    cout << "\n\n\n" << "\tSOLUTION pre perturb: \n";
+    for(auto k : solutionOmega){
+        cout << k << ' ';
+    }
+    cout << "\n\n\n\n" << "\tCOST pre perturb: " << costOmega << "\n\n";
+    solutionOmega = perturb(solutionOmega, &costOmega);*/
 
     for(int i = 0; i < I_MAX; i++)
     {
