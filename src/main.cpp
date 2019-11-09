@@ -6,6 +6,7 @@
 #include <ctime>
 #include <chrono>
 #include <limits>
+#include <assert.h>
 
 using namespace std;
 
@@ -38,24 +39,24 @@ bool compareCosts(const InsertionInfo &a, const InsertionInfo &b) {
 
 vector<int> construction(double alpha) {
 
-    vector<int> solution = {1, 1};
+    vector<int> solution = {1};
 
     vector<int> candidateList;
 
-    int subtourSize = 3;
-    int candidateListSize = dimension - 1; //Node 1 is already in the solution.
+    const int subtourSize = 3;
 
     //Fills candidates list according to dimension
-    for(int i = 0, j = 2; i < candidateListSize; i++, j++){
-        candidateList.insert(candidateList.begin() + i, j);
+    for(int i = 2; i < dimension + 1; i++){ //dimension -1(node 1 already in) +2(starts at 2)
+        candidateList.push_back(i);
     }
 
     //Initial subtour
     for(int i = 0; i < subtourSize; i++){
         int j = rand() % candidateList.size();
-        solution.insert(solution.begin() + 1 , candidateList[j]);
+        solution.push_back(candidateList[j]);
         candidateList.erase(candidateList.begin() + j);
     }
+    solution.push_back(1);
 
 
     while(!candidateList.empty())
@@ -442,7 +443,7 @@ int main(int argc, char** argv) {
     printCostMatrix();
 
     const int I_MAX = 50;
-    const int I_ILS = dimension >= 150 ? dimension/2 : dimension;
+    const int I_ILS = (dimension >= 150) ? (dimension/2) : (dimension);
 
     vector<int> solutionAlpha, solutionBeta, solutionOmega;
     double costAlpha, costBeta, costOmega = numeric_limits<double>::max();
@@ -458,6 +459,9 @@ int main(int argc, char** argv) {
 
         for(int iterILS = 0; iterILS < I_ILS; iterILS++){
             solutionAlpha = RVND(solutionAlpha, &costAlpha);
+            //DEBUG
+            cout << "rvnd" << endl;
+            assert(costAlpha < 3323);
 
             if(costAlpha < costBeta){
                 solutionBeta = solutionAlpha;
@@ -465,7 +469,9 @@ int main(int argc, char** argv) {
                 iterILS = 0;
             }
 
+            cout << "perturb" << endl;//DEBUG
             solutionAlpha = perturb(solutionBeta, &costAlpha);
+            assert(costAlpha < 3323);//DEBUG
         }
 
         if(costBeta < costOmega){
