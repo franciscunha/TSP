@@ -23,12 +23,12 @@ typedef struct{
 
 
 void printCostMatrix() {
-    cout << "dimension: " << dimension << endl;
+    std::cout << "dimension: " << dimension << endl;
     for (size_t i = 1; i <= dimension; i++) {
         for (size_t j = 1; j <= dimension; j++) {
-            cout << costMatrix[i][j] << " ";
+            std::cout << costMatrix[i][j] << " ";
         }
-        cout << endl;
+        std::cout << endl;
     }
 }
 
@@ -107,14 +107,15 @@ double solutionCost (vector <int> solution){
 vector<int> swap (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
-    double delta = 0;
+    double delta = 0, semiDelta = 0;
 
     for(int j = 3; j < s.size() - 2; j++){
-        delta +=  - costMatrix[s[j]][s[j-1]] - costMatrix[s[j]][s[j+1]]; //relies only on j
+
+        semiDelta =  -costMatrix[s[j]][s[j-1]] -costMatrix[s[j]][s[j+1]]; //relies only on j
 
         for(int i = 1; i < j - 1; i++){
 
-            delta += costMatrix[s[i]][s[j-1]] + costMatrix[s[i]][s[j+1]]
+            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i]][s[j+1]]
             + costMatrix[s[j]][s[i-1]] + costMatrix[s[j]][s[i+1]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i]][s[i+1]];
 
@@ -149,15 +150,15 @@ vector<int> swap (vector<int> s, double *bestDelta){
 vector<int> flip (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
-    double delta = 0;
+    double delta = 0, semiDelta = 0;
 
     for(int j = 3; j < s.size() - 1; j++){
-        delta += -costMatrix[s[j-1]][s[j]]; //relies only on j
+        
+        semiDelta = -costMatrix[s[j-1]][s[j]]; //relies only on j
 
         for(int i = 1; i < j - 1; i++){
-            if(i == j) continue;
 
-            delta += costMatrix[s[i]][s[j]] +costMatrix[s[j-1]][s[i-1]] -costMatrix[s[i-1]][s[i]];
+            delta = semiDelta + costMatrix[s[i]][s[j]] +costMatrix[s[j-1]][s[i-1]] -costMatrix[s[i-1]][s[i]];
 
             if(delta < *bestDelta){
                 *bestDelta = delta;
@@ -182,18 +183,60 @@ vector<int> flip (vector<int> s, double *bestDelta){
     return s;
 }
 
+vector<int> rein (vector<int> s, int archSize, double *bestDelta){
+    int best_i = 0, best_j = 0;
+    *bestDelta = 0; //0 = no change
+    double delta = 0, semiDelta = 0;
+    vector<int> s_copy = s;
+
+    for(int j = 1; j < s.size(); j++){
+        semiDelta = -costMatrix[s[j]][s[j-1]]; //relies only on j
+
+        for(int i = 1; i < s.size() - archSize; i++){ //TODO create another double for, avoiding i == j
+
+            //TODO see what delta is in relation to archSize
+
+            if(delta < *bestDelta){
+                *bestDelta = delta;
+
+                best_i = i;
+                best_j = j;
+            }
+        }
+    }
+
+    if(*bestDelta < 0){
+        if(best_i < best_j){
+            for(int l = 0; l < archSize; l++){
+                s_copy.insert(s_copy.begin() + best_j, s[best_i+l]);
+                s_copy.erase(s_copy.begin() + best_i);
+            }
+        }else if(best_j < best_i){
+            for(int l = 0; l < archSize; l++){
+                s_copy.erase(s_copy.begin() + best_i+l);
+                s_copy.insert(s_copy.begin() + best_j, s[best_i + archSize-1-l]);
+                //size-l-1 -> l goes from 0 to (size-1), this should go from (size-1) to l
+            }
+        }
+    }else{
+        *bestDelta = 0;
+    }
+
+}
+/*
 vector<int> reinsertion (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
-    double delta = 0;
+    double delta = 0, semiDelta = 0;
 
     for(int j = 1; j < s.size(); j++){
-        delta += -costMatrix[s[j]][s[j-1]]; //relies only on j
+
+        semiDelta = -costMatrix[s[j]][s[j-1]]; //relies only on j
 
         for(int i = 1; i < s.size() - 1; i++){
             if(i == j || j == i+1 || i == j+1) continue;
 
-            delta += costMatrix[s[i]][s[j]] + costMatrix[s[i]][s[j-1]] + costMatrix[s[i-1]][s[i+1]]
+            delta = semiDelta + costMatrix[s[i]][s[j]] + costMatrix[s[i]][s[j-1]] + costMatrix[s[i-1]][s[i+1]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i]][s[i+1]];
 
             if(delta < *bestDelta){
@@ -220,16 +263,16 @@ vector<int> reinsertion (vector<int> s, double *bestDelta){
 vector<int> oropt2 (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
-    double delta = 0;
+    double delta = 0, semiDelta = 0;
 
     for(int j = 1; j < s.size(); j++){
-        delta += -costMatrix[s[j]][s[j-1]]; //relies only on j
+        semiDelta = -costMatrix[s[j]][s[j-1]]; //relies only on j
 
         for(int i = 1; i < s.size() - 2; i++){
 
             if (i == j || j == i+1 || j == i+2) continue;
 
-            delta += costMatrix[s[i]][s[j-1]] + costMatrix[s[i+1]][s[j]] + costMatrix[s[i-1]][s[i+2]]
+            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+1]][s[j]] + costMatrix[s[i-1]][s[i+2]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i+1]][s[i+2]];
 
             if(delta < *bestDelta){
@@ -265,16 +308,16 @@ vector<int> oropt2 (vector<int> s, double *bestDelta){
 vector<int> oropt3 (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
-    double delta = 0;
+    double delta = 0, semiDelta = 0;
 
     for(int j = 1; j < s.size(); j++){
-        delta += -costMatrix[s[j]][s[j-1]]; //relies only on j
+        semiDelta = -costMatrix[s[j]][s[j-1]]; //relies only on j
 
         for(int i = 1; i < s.size() - 3; i++){
 
             if (i == j || j == i+1 || j == i+2 || j == i+3) continue;
 
-            delta += costMatrix[s[i]][s[j-1]] + costMatrix[s[i+2]][s[j]] + costMatrix[s[i-1]][s[i+3]]
+            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+2]][s[j]] + costMatrix[s[i-1]][s[i+3]]
             - costMatrix[s[i]][s[i-1]] - costMatrix[s[i+2]][s[i+3]];
 
             if(delta < *bestDelta){
@@ -308,7 +351,7 @@ vector<int> oropt3 (vector<int> s, double *bestDelta){
     }
 
     return s;
-}
+}*/
 
 vector<int> RVND (vector<int> s, double *mainCost){
     vector<int> ngbhList = {N1, N2, N3, N4, N5};
@@ -439,8 +482,8 @@ int main(int argc, char** argv) {
     srand(time(NULL));
 
     readData(argc, argv, &dimension, &costMatrix);
-    cout << "\tCOST MATRIX: \n";
-    printCostMatrix();
+    /*std::cout << "\tCOST MATRIX: \n";
+    printCostMatrix();*/
 
     const int I_MAX = 50;
     const int I_ILS = (dimension >= 150) ? (dimension/2) : (dimension);
@@ -459,9 +502,6 @@ int main(int argc, char** argv) {
 
         for(int iterILS = 0; iterILS < I_ILS; iterILS++){
             solutionAlpha = RVND(solutionAlpha, &costAlpha);
-            //DEBUG
-            cout << "rvnd" << endl;
-            assert(costAlpha < 3323);
 
             if(costAlpha < costBeta){
                 solutionBeta = solutionAlpha;
@@ -469,9 +509,7 @@ int main(int argc, char** argv) {
                 iterILS = 0;
             }
 
-            cout << "perturb" << endl;//DEBUG
             solutionAlpha = perturb(solutionBeta, &costAlpha);
-            assert(costAlpha < 3323);//DEBUG
         }
 
         if(costBeta < costOmega){
@@ -484,12 +522,12 @@ int main(int argc, char** argv) {
     chrono::duration<double> elapsedSeconds = timerEnd - timerStart;
 
     //PRINT COST AND SOLUTION
-    cout << "\n\n\n" << "\tSOLUTION:\n";
+    std::cout << "\n\n\n" << "\tSOLUTION:\n";
     for(auto k : solutionOmega){
-        cout << k << ' ';
+        std::cout << k << ' ';
     }
-    cout << "\n\n\n\n" << "\tCOST: " << costOmega << "\n\n";
-    cout << "\tTOTAL TIME: " << elapsedSeconds.count() << "s\n";
+    std::cout << "\n\n\n\n" << "\tCOST: " << costOmega << "\n\n";
+    std::cout << "\tTOTAL TIME: " << elapsedSeconds.count() << "s\n";
 
     return 0;
 }
