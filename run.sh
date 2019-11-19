@@ -4,4 +4,4 @@ echo "Running TSP"
 
 make
 
-./tsp instances/a280.tsp
+./tsp instances/burma14.tsp
