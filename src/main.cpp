@@ -6,7 +6,6 @@
 #include <ctime>
 #include <chrono>
 #include <limits>
-#include <assert.h>
 
 using namespace std;
 
@@ -183,63 +182,6 @@ vector<int> flip (vector<int> s, double *bestDelta){
     return s;
 }
 
-vector<int> rein (vector<int> s, int archSize, double *bestDelta){
-    int extraNodes = archSize - 1;
-    int best_i = 0, best_j = 0;
-    *bestDelta = 0; //0 = no change
-    double delta = 0, semiDelta = 0;
-
-    for(int i = 1; i < s.size() - archSize; i++){
-
-        semiDelta = costMatrix[s[i-1]][s[i+archSize]] - costMatrix[s[i]][s[i-1]]
-                    - costMatrix[s[i+extraNodes]][s[i+archSize]]; //relies only on i
-
-        for(int j = 1; j < i-archSize; j++){
-
-            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+extraNodes]][s[j]]
-                    - costMatrix[s[j]][s[j-1]];
-
-            if(delta < *bestDelta){
-                *bestDelta = delta;
-
-                best_i = i;
-                best_j = j;
-            }
-        }
-
-        for(int j = i + archSize + extraNodes; j < s.size() - archSize; j++){
-
-            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+extraNodes]][s[j]]
-                    - costMatrix[s[j]][s[j-1]];
-
-            if(delta < *bestDelta){
-                *bestDelta = delta;
-
-                best_i = i;
-                best_j = j;
-            }
-        }
-    }
-
-    if(*bestDelta < 0){
-        if(best_i < best_j){
-            for(int l = 0; l < archSize; l++){
-                s.insert(s.begin() + best_j, s[best_i]);
-                s.erase(s.begin() + best_i);
-            } 
-        }else if(best_j < best_i){
-            for(int l = 0; l < archSize; l++){
-                s.insert(s.begin() + best_j, s[best_i + extraNodes]);
-                s.erase(s.begin() + best_i + archSize);
-            }
-        }
-    }else{
-        *bestDelta = 0;
-    }
-
-    return s;
-}
-
 vector<int> reinsertion (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
@@ -389,16 +331,13 @@ vector<int> RVND (vector<int> s, double *mainCost){
                 neighbour_s = flip(s, &delta);
                 break;
             case N3:
-                neighbour_s = rein(s, 1, &delta);
-                //neighbour_s = reinsertion(s, &delta);
+                neighbour_s = reinsertion(s, &delta);
                 break;
             case N4:
-                neighbour_s = rein(s, 2, &delta);
-                //neighbour_s = oropt2(s, &delta);
+                neighbour_s = oropt2(s, &delta);
                 break;
             case N5:
-                neighbour_s = rein(s, 3, &delta);
-                //neighbour_s = oropt3(s, &delta);
+                neighbour_s = oropt3(s, &delta);
                 break;
         }
         neighbourCost = *mainCost + delta;
