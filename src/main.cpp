@@ -184,17 +184,33 @@ vector<int> flip (vector<int> s, double *bestDelta){
 }
 
 vector<int> rein (vector<int> s, int archSize, double *bestDelta){
+    int extraNodes = archSize - 1;
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
     double delta = 0, semiDelta = 0;
-    vector<int> s_copy = s;
 
-    for(int j = 1; j < s.size(); j++){
-        semiDelta = -costMatrix[s[j]][s[j-1]]; //relies only on j
+    for(int i = 1; i < s.size() - archSize; i++){
 
-        for(int i = 1; i < s.size() - archSize; i++){ //TODO create another double for, avoiding i == j
+        semiDelta = costMatrix[s[i-1]][s[i+archSize]] - costMatrix[s[i]][s[i-1]]
+                    - costMatrix[s[i+extraNodes]][s[i+archSize]]; //relies only on i
 
-            //TODO see what delta is in relation to archSize
+        for(int j = 1; j < i; j++){
+
+            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+extraNodes]][s[j]]
+                    - costMatrix[s[j]][s[j-1]];
+
+            if(delta < *bestDelta){
+                *bestDelta = delta;
+
+                best_i = i;
+                best_j = j;
+            }
+        }
+
+        for(int j = i + archSize; j < s.size(); j++){
+
+            delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+extraNodes]][s[j]]
+                    - costMatrix[s[j]][s[j-1]];
 
             if(delta < *bestDelta){
                 *bestDelta = delta;
@@ -208,13 +224,13 @@ vector<int> rein (vector<int> s, int archSize, double *bestDelta){
     if(*bestDelta < 0){
         if(best_i < best_j){
             for(int l = 0; l < archSize; l++){
-                s_copy.insert(s_copy.begin() + best_j, s[best_i+l]);
-                s_copy.erase(s_copy.begin() + best_i);
+                s.insert(s.begin() + best_j, s[best_i+l]);
+                s.erase(s.begin() + best_i);
             }
         }else if(best_j < best_i){
             for(int l = 0; l < archSize; l++){
-                s_copy.erase(s_copy.begin() + best_i+l);
-                s_copy.insert(s_copy.begin() + best_j, s[best_i + archSize-1-l]);
+                s.erase(s.begin() + best_i+l);
+                s.insert(s.begin() + best_j, s[best_i + archSize-1-l]);
                 //size-l-1 -> l goes from 0 to (size-1), this should go from (size-1) to l
             }
         }
@@ -223,7 +239,7 @@ vector<int> rein (vector<int> s, int archSize, double *bestDelta){
     }
 
 }
-/*
+
 vector<int> reinsertion (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
@@ -351,7 +367,7 @@ vector<int> oropt3 (vector<int> s, double *bestDelta){
     }
 
     return s;
-}*/
+}
 
 vector<int> RVND (vector<int> s, double *mainCost){
     vector<int> ngbhList = {N1, N2, N3, N4, N5};
@@ -373,12 +389,15 @@ vector<int> RVND (vector<int> s, double *mainCost){
                 neighbour_s = flip(s, &delta);
                 break;
             case N3:
+                //neighbour_s = rein(s, 1, &delta);
                 neighbour_s = reinsertion(s, &delta);
                 break;
             case N4:
+                //neighbour_s = rein(s, 2, &delta);
                 neighbour_s = oropt2(s, &delta);
                 break;
             case N5:
+                //neighbour_s = rein(s, 3, &delta);
                 neighbour_s = oropt3(s, &delta);
                 break;
         }
