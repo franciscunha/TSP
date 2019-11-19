@@ -194,7 +194,7 @@ vector<int> rein (vector<int> s, int archSize, double *bestDelta){
         semiDelta = costMatrix[s[i-1]][s[i+archSize]] - costMatrix[s[i]][s[i-1]]
                     - costMatrix[s[i+extraNodes]][s[i+archSize]]; //relies only on i
 
-        for(int j = 1; j < i; j++){
+        for(int j = 1; j < i-archSize; j++){
 
             delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+extraNodes]][s[j]]
                     - costMatrix[s[j]][s[j-1]];
@@ -207,7 +207,7 @@ vector<int> rein (vector<int> s, int archSize, double *bestDelta){
             }
         }
 
-        for(int j = i + archSize; j < s.size(); j++){
+        for(int j = i + archSize + extraNodes; j < s.size() - archSize; j++){
 
             delta = semiDelta + costMatrix[s[i]][s[j-1]] + costMatrix[s[i+extraNodes]][s[j]]
                     - costMatrix[s[j]][s[j-1]];
@@ -224,20 +224,20 @@ vector<int> rein (vector<int> s, int archSize, double *bestDelta){
     if(*bestDelta < 0){
         if(best_i < best_j){
             for(int l = 0; l < archSize; l++){
-                s.insert(s.begin() + best_j, s[best_i+l]);
+                s.insert(s.begin() + best_j, s[best_i]);
                 s.erase(s.begin() + best_i);
-            }
+            } 
         }else if(best_j < best_i){
             for(int l = 0; l < archSize; l++){
-                s.erase(s.begin() + best_i+l);
-                s.insert(s.begin() + best_j, s[best_i + archSize-1-l]);
-                //size-l-1 -> l goes from 0 to (size-1), this should go from (size-1) to l
+                s.insert(s.begin() + best_j, s[best_i + extraNodes]);
+                s.erase(s.begin() + best_i + archSize);
             }
         }
     }else{
         *bestDelta = 0;
     }
 
+    return s;
 }
 
 vector<int> reinsertion (vector<int> s, double *bestDelta){
@@ -370,7 +370,7 @@ vector<int> oropt3 (vector<int> s, double *bestDelta){
 }
 
 vector<int> RVND (vector<int> s, double *mainCost){
-    vector<int> ngbhList = {N1, N2, N3, N4, N5};
+    vector<int> ngbhList = {N1, N2, N3};
     int ngbh_n;
 
     vector<int> neighbour_s = s;
@@ -389,16 +389,16 @@ vector<int> RVND (vector<int> s, double *mainCost){
                 neighbour_s = flip(s, &delta);
                 break;
             case N3:
-                //neighbour_s = rein(s, 1, &delta);
-                neighbour_s = reinsertion(s, &delta);
+                neighbour_s = rein(s, 1, &delta);
+                //neighbour_s = reinsertion(s, &delta);
                 break;
             case N4:
-                //neighbour_s = rein(s, 2, &delta);
-                neighbour_s = oropt2(s, &delta);
+                neighbour_s = rein(s, 2, &delta);
+                //neighbour_s = oropt2(s, &delta);
                 break;
             case N5:
-                //neighbour_s = rein(s, 3, &delta);
-                neighbour_s = oropt3(s, &delta);
+                neighbour_s = rein(s, 3, &delta);
+                //neighbour_s = oropt3(s, &delta);
                 break;
         }
         neighbourCost = *mainCost + delta;
@@ -407,7 +407,7 @@ vector<int> RVND (vector<int> s, double *mainCost){
             s = neighbour_s;
             *mainCost = neighbourCost;
 
-            ngbhList = {N1, N2, N3, N4, N5};
+            ngbhList = {N1, N2, N3};
         }else{
             ngbhList.erase(std::remove(ngbhList.begin(), ngbhList.end(), ngbh_n), ngbhList.end());
         }
@@ -496,13 +496,13 @@ vector<int> perturb (vector<int> s, double *cost){
 }
 
 int main(int argc, char** argv) {
-    auto timerStart = chrono::system_clock::now();
-
     srand(time(NULL));
 
     readData(argc, argv, &dimension, &costMatrix);
-    /*std::cout << "\tCOST MATRIX: \n";
-    printCostMatrix();*/
+    std::cout << "\tCOST MATRIX: \n";
+    printCostMatrix();
+
+    auto timerStart = chrono::system_clock::now();
 
     const int I_MAX = 50;
     const int I_ILS = (dimension >= 150) ? (dimension/2) : (dimension);
