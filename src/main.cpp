@@ -438,8 +438,8 @@ int main(int argc, char** argv) {
     srand(time(NULL));
 
     readData(argc, argv, &dimension, &costMatrix);
-    std::cout << "\tCOST MATRIX: \n";
-    printCostMatrix();
+    //std::cout << "\tCOST MATRIX: \n";
+    //printCostMatrix();
 
     auto timerStart = chrono::system_clock::now();
 
