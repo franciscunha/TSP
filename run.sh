@@ -4,4 +4,10 @@ echo "Running TSP"
 
 make
 
-./tsp instances/burma14.tsp
+for instance in ./instances/*; do
+	echo $instance
+	for i in {1..10}; do
+		./tsp ${instance} | grep 'COST\|TIME' | awk "{print $1}"
+	done
+
+done
