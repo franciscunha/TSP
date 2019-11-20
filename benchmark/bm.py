@@ -17,7 +17,7 @@ for line in fin.readlines():
             fout.write(str(avg_cost))
             fout.write("\nAvg time: ")
             fout.write(str(avg_time))
-            fout.write("\n")
+            fout.write("\n\n")
 
         fout.write(my_list[0])
 
