@@ -29,6 +29,7 @@ void printCostMatrix() {
         }
         std::cout << endl;
     }
+    cout << endl << endl;
 }
 
 
@@ -480,12 +481,12 @@ int main(int argc, char** argv) {
     chrono::duration<double> elapsedSeconds = timerEnd - timerStart;
 
     //PRINT COST AND SOLUTION
-    std::cout << "\n\n\n" << "\tSOLUTION:\n";
+    std::cout << "SOLUTION:\n";
     for(auto k : solutionOmega){
         std::cout << k << ' ';
     }
-    std::cout << "\n\n\n\n" << "\tCOST: " << costOmega << "\n\n";
-    std::cout << "\tTOTAL TIME: " << elapsedSeconds.count() << "s\n";
+    std::cout << "\n\n" << "COST: " << costOmega << "\n";
+    std::cout << "TIME: " << elapsedSeconds.count() << "\n";
 
     return 0;
 }
