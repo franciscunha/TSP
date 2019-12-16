@@ -1,0 +1,72 @@
+instances/a280.tsp --- Needs improvement
+instances/ali535.tsp --- Needs improvement
+instances/att48.tsp --- Good
+instances/att532.tsp --- Needs improvement
+instances/bayg29.tsp --- Optimal!
+instances/bays29.tsp --- Optimal!
+instances/berlin52.tsp --- Optimal!
+instances/bier127.tsp --- Needs improvement
+instances/brazil58.tsp --- Optimal!
+instances/brg180.tsp --- Needs improvement
+instances/burma14.tsp --- Optimal!
+instances/ch130.tsp --- Needs improvement
+instances/ch150.tsp --- Needs improvement
+instances/d198.tsp --- Needs improvement
+instances/dantzig42.tsp --- Optimal!
+instances/eil101.tsp --- Needs improvement
+instances/eil51.tsp --- Good
+instances/eil76.tsp --- Needs improvement
+instances/fl417.tsp --- Needs improvement
+instances/fri26.tsp --- Optimal!
+instances/gil262.tsp --- Needs improvement
+instances/gr120.tsp --- Needs improvement
+instances/gr137.tsp --- Good
+instances/gr17.tsp --- Optimal!
+instances/gr202.tsp --- Needs improvement
+instances/gr21.tsp --- Optimal!
+instances/gr229.tsp --- Needs improvement
+instances/gr24.tsp --- Optimal!
+instances/gr431.tsp --- Needs improvement
+instances/gr48.tsp --- Good
+instances/gr96.tsp --- Needs improvement
+instances/hk48.tsp --- Good
+instances/kroA100.tsp --- Good
+instances/kroA150.tsp --- Needs improvement
+instances/kroA200.tsp --- Needs improvement
+instances/kroB100.tsp --- Needs improvement
+instances/kroB150.tsp --- Needs improvement
+instances/kroB200.tsp --- Needs improvement
+instances/kroC100.tsp --- Needs improvement
+instances/kroD100.tsp --- Good
+instances/kroE100.tsp --- Good
+instances/lin105.tsp --- Good
+instances/lin318.tsp --- Needs improvement
+instances/linhp318.tsp --- Needs improvement
+instances/pcb442.tsp --- Needs improvement
+instances/pr107.tsp --- Good
+instances/pr124.tsp --- Good
+instances/pr136.tsp --- Good
+instances/pr144.tsp --- Optimal!
+instances/pr152.tsp --- Good
+instances/pr226.tsp --- Good
+instances/pr264.tsp --- Good
+instances/pr299.tsp --- Needs improvement
+instances/pr76.tsp --- Good
+instances/rat195.tsp --- Needs improvement
+instances/rat99.tsp --- Good
+instances/rd100.tsp --- Good
+instances/rd400.tsp --- Needs improvement
+instances/si175.tsp --- Good
+instances/si535.tsp --- Good
+instances/st70.tsp --- Good
+instances/swiss42.tsp --- Optimal!
+instances/ts225.tsp --- Optimal!
+instances/tsp225.tsp --- Needs improvement
+instances/u159.tsp --- Good
+instances/ulysses16.tsp --- Optimal!
+instances/ulysses22.tsp --- Optimal!
+-
+TOTAL COUNT
+Optimal: 15
+Good: 22
+Needs improvement: 30

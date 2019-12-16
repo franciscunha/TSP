@@ -24,6 +24,9 @@ echo "Running bm.py to compute averages..."
 
 cd benchmark
 python3 bm.py
+
+echo "Finishing up summary..."
+python3 summarycount.py
 cd ..
 
 echo "Benchmark completed."
