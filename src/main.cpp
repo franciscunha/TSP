@@ -182,31 +182,15 @@ vector<int> reinsertion (vector<int> s, double *bestDelta, int subsegSize){
     *bestDelta = 0; //0 = no change
     double delta = 0, semiDelta = 0;
 
-    int r_i = 0, r_j = 0;
-    auto rit = s.rbegin();
-
-    for(int j = 1; j < s.size() - subsegSize; j++)
+    for(int j = 1; j < s.size() - subsegSize - 1; j++)
     {
-        semiDelta = costM[s[j - 1]][s[j + subsegSize]] - costM[s[j - 1]][s[j]] - costM[s[j + subsegSize - 1]][s[j + subsegSize]];
+        semiDelta = costM[s[j - 1]][s[j + subsegSize]] - costM[s[j]][s[j - 1]] - costM[s[j + subsegSize - 1]][s[j + subsegSize]];
 
         for(int i = 1; i < s.size() - 1; i++)
         {
-            if(i == j) continue;
+            if(j <= i && i <= j + subsegSize) continue;
 
-            if(j > i)
-            {
-                delta = costM[s[j]][s[i - 1]] + costM[s[j + subsegSize - 1]][s[i]] - costM[s[i]][s[i - 1]] + semiDelta;
-            }
-            else
-            {
-                r_i = s.size() - i - subsegSize;
-                r_j = s.size() - j - subsegSize;
-
-                //Segfault aqui
-                delta = costM[*(rit + r_j)][*(rit + r_i - 1)] + costM[*(rit + r_j + subsegSize - 1)][*(rit + r_i)]
-                + costM[*(rit + r_j - 1)][*(rit + r_j + subsegSize)] - costM[*(rit + r_j - 1)][*(rit + r_j)]
-                - costM[*(rit + r_j + subsegSize - 1)][*(rit + r_j + subsegSize)] - costM[*(rit + r_i)][*(rit + r_i - 1)];
-            }
+            delta = costM[s[j]][s[i + 1]] + costM[s[j + subsegSize - 1]][s[i]] - costM[s[i]][s[i - 1]] + semiDelta;
 
             if(delta < *bestDelta){
                 *bestDelta = delta;
@@ -221,8 +205,14 @@ vector<int> reinsertion (vector<int> s, double *bestDelta, int subsegSize){
     if(*bestDelta < 0){
         vector<int> subseg(s.begin() + best_j, s.begin() + best_j + subsegSize);
 
-        s.erase(s.begin() + best_j, s.begin() + best_j + subsegSize);
-        s.insert(s.begin() + best_i, subseg.begin(), subseg.end());
+        if(best_i < best_j){
+            s.erase(s.begin() + best_j, s.begin() + best_j + subsegSize);
+            s.insert(s.begin() + best_i, subseg.begin(), subseg.end());
+        }else{
+            s.insert(s.begin() + best_i, subseg.begin(), subseg.end());
+            s.erase(s.begin() + best_j, s.begin() + best_j + subsegSize);
+        }
+
     }else{
         *bestDelta = 0;
     }
