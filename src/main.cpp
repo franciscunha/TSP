@@ -109,7 +109,7 @@ vector<int> swap (vector<int> s, double *bestDelta){
     *bestDelta = 0; //0 = no change
     double delta = 0, semiDelta = 0;
 
-    for(int j = 3; j < s.size() - 2; j++)
+    for(int j = 2; j < s.size() - 1; j++)
     {
         semiDelta =  -costM[s[j]][s[j-1]] -costM[s[j]][s[j+1]]; //relies only on j
 
@@ -140,21 +140,21 @@ vector<int> swap (vector<int> s, double *bestDelta){
     return s;
 }
 
-// Se o código ainda estiver ruim, muda isso
 vector<int> flip (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
     *bestDelta = 0; //0 = no change
     double delta = 0, semiDelta = 0;
 
-    for(int j = 3; j < s.size() - 1; j++){
-        
-        semiDelta = -costM[s[j-1]][s[j]]; //relies only on j
+    for(int j = 3; j < s.size() - 1; j++)
+    {
+        semiDelta = -costM[s[j]][s[j+1]]; //relies only on j
 
-        for(int i = 1; i < j - 1; i++){
+        for(int i = 1; i < j - 1; i++)
+        {
+            delta = -costM[s[i-1]][s[i]] + semiDelta + costM[s[i]][s[j+1]] +costM[s[j]][s[i-1]];
 
-            delta = semiDelta + costM[s[i]][s[j]] +costM[s[j-1]][s[i-1]] -costM[s[i-1]][s[i]];
-
-            if(delta < *bestDelta){
+            if(delta < *bestDelta - std::numeric_limits<double>::epsilon())
+            {
                 *bestDelta = delta;
 
                 best_i = i;
@@ -163,13 +163,8 @@ vector<int> flip (vector<int> s, double *bestDelta){
         }
     }
 
-    if(*bestDelta < 0){
-        for(int k = best_i, l = 0; k < best_j; k++, l++){
-            s.insert(s.begin() + best_i, s[k+l]);
-        }
-        for(int k = best_i; k < best_j; k++){
-            s.erase(s.begin() + best_j);
-        }
+    if(*bestDelta < std::numeric_limits<double>::epsilon()){
+        std::reverse(s.begin() + best_i, s.begin() + best_j + 1);
     }else{
         *bestDelta = 0;
     }
@@ -182,17 +177,17 @@ vector<int> reinsertion (vector<int> s, double *bestDelta, int subsegSize){
     *bestDelta = 0; //0 = no change
     double delta = 0, semiDelta = 0;
 
-    for(int j = 1; j < s.size() - subsegSize - 1; j++)
+    for(int i = 1; i < s.size() - subsegSize; i++)
     {
-        semiDelta = costM[s[j - 1]][s[j + subsegSize]] - costM[s[j]][s[j - 1]] - costM[s[j + subsegSize - 1]][s[j + subsegSize]];
+        semiDelta = costM[s[i - 1]][s[i + subsegSize]] - costM[s[i]][s[i - 1]] - costM[s[i + subsegSize - 1]][s[i + subsegSize]];
 
-        for(int i = 1; i < s.size() - 1; i++)
+        for(int j = 1; j < s.size(); j++)
         {
-            if(j <= i && i <= j + subsegSize) continue;
+            if(i <= j && j <= i + subsegSize) continue;
 
-            delta = costM[s[j]][s[i + 1]] + costM[s[j + subsegSize - 1]][s[i]] - costM[s[i]][s[i - 1]] + semiDelta;
+            delta = costM[s[j - 1]][s[i]] + costM[s[i + subsegSize - 1]][s[j]] - costM[s[j]][s[j - 1]] + semiDelta;
 
-            if(delta < *bestDelta){
+            if(delta < *bestDelta - std::numeric_limits<double>::epsilon()){
                 *bestDelta = delta;
 
                 best_i = i;
@@ -202,15 +197,16 @@ vector<int> reinsertion (vector<int> s, double *bestDelta, int subsegSize){
         }
     }
 
-    if(*bestDelta < 0){
-        vector<int> subseg(s.begin() + best_j, s.begin() + best_j + subsegSize);
+    if(*bestDelta < std::numeric_limits<double>::epsilon())
+    {
+        vector<int> subseg(s.begin() + best_i, s.begin() + best_i + subsegSize);
 
         if(best_i < best_j){
-            s.erase(s.begin() + best_j, s.begin() + best_j + subsegSize);
-            s.insert(s.begin() + best_i, subseg.begin(), subseg.end());
+            s.insert(s.begin() + best_j, subseg.begin(), subseg.end());
+            s.erase(s.begin() + best_i, s.begin() + best_i + subsegSize);
         }else{
-            s.insert(s.begin() + best_i, subseg.begin(), subseg.end());
-            s.erase(s.begin() + best_j, s.begin() + best_j + subsegSize);
+            s.erase(s.begin() + best_i, s.begin() + best_i + subsegSize);
+            s.insert(s.begin() + best_j, subseg.begin(), subseg.end());
         }
 
     }else{
@@ -249,6 +245,7 @@ vector<int> RVND (vector<int> s, double *mainCost){
                 neighbour_s = reinsertion(s, &delta, 3);
                 break;
         }
+
         neighbourCost = *mainCost + delta;
 
         if(neighbourCost < *mainCost){
