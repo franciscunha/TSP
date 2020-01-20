@@ -6,6 +6,7 @@
 #include <ctime>
 #include <chrono>
 #include <limits>
+#include <cmath>
 
 using namespace std;
 
@@ -37,8 +38,8 @@ bool compareCosts(const InsertionInfo &a, const InsertionInfo &b) {
     return (a.cost < b.cost);
 }
 
-vector<int> construction(double alpha) {
-
+vector<int> construction(double alpha)
+{
     vector<int> solution = {1};
 
     vector<int> candidateList;
@@ -94,7 +95,6 @@ vector<int> construction(double alpha) {
     return solution;
 }
 
-
 double solutionCost (vector <int> solution){
     double cost = 0;
     for(int i = 0; i < solution.size() - 1; i++){
@@ -102,7 +102,6 @@ double solutionCost (vector <int> solution){
     }
     return cost;
 }
-
 
 vector<int> swap (vector<int> s, double *bestDelta){
     int best_i = 0, best_j = 0;
@@ -261,78 +260,51 @@ vector<int> RVND (vector<int> s, double *mainCost){
     return s;
 }
 
+int randomRange(int min, int max){ // Inclusive
+    return min + (rand() % (max - min + 1));
+}
+
 vector<int> perturb (vector<int> s, double *cost){
-    int alphaSize = ( rand() % (dimension/10) ) + 2;
-    int alphaStart = (rand() % (dimension-2) ) + 1;
-    int alphaEnd = alphaStart + alphaSize;
+    int subseg1Start = 1, subseg1End = 1;
+    int subseg2Start = 1, subseg2End = 1;
+    // If s.size()/10 >= 2 -> max = s.size()/10, else -> max = 2
+    const int maxSubsegSize = (std::ceil(s.size()/10) >= 2) ? std::ceil(s.size()/10) : 2; 
+    const int minSubsegSize = 2;
 
-    //Gets a new alpha subsegment when there's no space for beta
-    while(alphaEnd >= (dimension - 4))
+    while( subseg1Start <= subseg2Start && subseg2Start <= subseg1End
+        || subseg2Start <= subseg1Start && subseg1Start <= subseg2End )
     {
-        alphaSize = ( rand() % (dimension/10) ) + 2;
-        alphaStart = (rand() % (dimension-2) ) + 1;
-        alphaEnd = alphaStart + alphaSize;
+        subseg1Start = randomRange(1, s.size() - 1 - maxSubsegSize);
+        subseg1End = subseg1Start + randomRange(minSubsegSize, maxSubsegSize);
+
+        subseg2Start = randomRange(1, s.size() - 1 - maxSubsegSize);
+        subseg2End = subseg2Start + randomRange(minSubsegSize, maxSubsegSize);
     }
 
-    int betaSize = ( rand() % (dimension/10) ) + 2;
-    int betaStart = (rand() % (dimension-2-alphaEnd) ) + alphaEnd + 1;
-    int betaEnd = betaStart + betaSize;
+    const int subseg1Size = subseg1End - subseg1Start;
+    const int subseg2Size = subseg2End - subseg2Start;
 
-    //Gets a new beta subsegment when beta covers the extremes
-    while(betaEnd >= dimension)
-    {
-        betaSize = ( rand() % (dimension/10) ) + 2;
-        betaStart = (rand() % (dimension-2-alphaEnd) ) + alphaEnd + 1;
-        betaEnd = betaStart + betaSize;
-    }
+    double delta = -costM[s[subseg1Start - 1]][s[subseg1Start]] -costM[s[subseg1End - 1]][s[subseg1End]]
+                   -costM[s[subseg2Start - 1]][s[subseg2Start]] -costM[s[subseg2End - 1]][s[subseg2End]]
+                   +costM[s[subseg1Start - 1]][s[subseg2End - 1]] +costM[s[subseg2Start]][s[subseg1End]]
+                   +costM[s[subseg2Start - 1]][s[subseg1End - 1]] +costM[s[subseg1Start]][s[subseg2End]];
 
-    //Gets cost difference after movement is made
-    double delta = costM[s[betaEnd-1]][s[alphaStart-1]] + costM[s[betaStart]][s[alphaEnd]]
-    + costM[s[alphaEnd-1]][s[betaStart-1]] + costM[s[alphaStart]][s[betaEnd]]
-    - costM[s[alphaStart]][s[alphaStart-1]] - costM[s[alphaEnd]][s[alphaEnd-1]]
-    - costM[s[betaStart]][s[betaStart-1]] - costM[s[betaEnd]][s[betaEnd-1]];
+    vector<int> subseg1(s.begin() + subseg1Start, s.begin() + subseg1End);
+    vector<int> subseg2(s.begin() + subseg2Start, s.begin() + subseg2End);
 
-    vector<int> s_copy = s;
+    std::reverse(subseg1.begin(), subseg1.end());
+    std::reverse(subseg2.begin(), subseg2.end());
 
-
-    //Invert subsegment elements
-    for(int i = 0; i < alphaSize; i++){
-        s.erase(s.begin() + alphaStart);
-    }
-    for(int i = 0; i < alphaSize; i++){
-        s.insert(s.begin() + alphaStart, s_copy[alphaStart + i]);
-    }
-
-    for(int i = 0; i < betaSize; i++){
-        s.erase(s.begin() + betaStart);
-    }
-    for(int i = 0; i < betaSize; i++){
-        s.insert(s.begin() + betaStart, s_copy[betaStart + i]);
-    }
-
-    //Invert subsegment order
-    s_copy = s;
-
-    for(int i = betaEnd-1; i >= betaStart; i--){
-        s.insert(s.begin() + alphaStart, s_copy[i]);
-    }
-    for(int i = 0; i < alphaSize; i++){
-        s.erase(s.begin() + alphaStart + betaSize);
-    }
-
-    /*At this point, the solution will look like [... beta ... beta ...], and we need to
-    insert alpha at the start of the second beta. However, betaStart no longer represents
-    where the second beta starts, as this variable considers alpha at the first spot where
-    currently there is a beta, and alpha and beta can have different sizes. As such, to find out
-    where the new beta starts, we need to offset the betaStart variable by the difference
-    between betaSize and alphaSize.*/
-    int offset = betaSize - alphaSize;
-
-    for(int i = alphaEnd-1; i >= alphaStart; i--){
-        s.insert(s.begin() + betaStart + offset, s_copy[i]);
-    }
-    for(int i = 0; i < betaSize; i++){
-        s.erase(s.begin() + betaStart + offset + alphaSize);
+    if(subseg1End < subseg2Start){
+        s.insert(s.begin() + subseg2Start, subseg1.begin(), subseg1.end());
+        s.insert(s.begin() + subseg1Start, subseg2.begin(), subseg2.end());
+        s.erase(s.begin() + subseg1Start + subseg2Size, s.begin() + subseg1End + subseg2Size);
+        s.erase(s.begin() + subseg2Start + subseg1Size, s.begin() + subseg2End + subseg1Size);
+    }else{
+        s.insert(s.begin() + subseg1Start, subseg2.begin(), subseg2.end());
+        s.insert(s.begin() + subseg2Start, subseg1.begin(), subseg1.end());
+        s.erase(s.begin() + subseg2Start + subseg1Size, s.begin() + subseg2End + subseg1Size);
+        s.erase(s.begin() + subseg1Start + subseg2Size, s.begin() + subseg1End + subseg2Size);
     }
 
     *cost += delta;
