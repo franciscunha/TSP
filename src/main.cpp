@@ -298,13 +298,13 @@ vector<int> perturb (vector<int> s, double *cost){
     if(subseg1End < subseg2Start){
         s.insert(s.begin() + subseg2Start, subseg1.begin(), subseg1.end());
         s.insert(s.begin() + subseg1Start, subseg2.begin(), subseg2.end());
+        s.erase(s.begin() + subseg2Start + subseg1Size + subseg2Size, s.begin() + subseg2End + subseg1Size + subseg2Size);
         s.erase(s.begin() + subseg1Start + subseg2Size, s.begin() + subseg1End + subseg2Size);
-        s.erase(s.begin() + subseg2Start + subseg1Size, s.begin() + subseg2End + subseg1Size);
     }else{
         s.insert(s.begin() + subseg1Start, subseg2.begin(), subseg2.end());
         s.insert(s.begin() + subseg2Start, subseg1.begin(), subseg1.end());
+        s.erase(s.begin() + subseg1Start + subseg1Size + subseg2Size, s.begin() + subseg1End + subseg1Size + subseg2Size);
         s.erase(s.begin() + subseg2Start + subseg1Size, s.begin() + subseg2End + subseg1Size);
-        s.erase(s.begin() + subseg1Start + subseg2Size, s.begin() + subseg1End + subseg2Size);
     }
 
     *cost += delta;
