@@ -264,7 +264,7 @@ int randomRange(int min, int max){ // Inclusive
     return min + (rand() % (max - min + 1));
 }
 
-vector<int> perturb (vector<int> s, double *cost){
+vector<int> perturb (vector<int> s, double costIn, double *costOut){
     int subseg1Start = 1, subseg1End = 1;
     int subseg2Start = 1, subseg2End = 1;
     // If s.size()/10 >= 2 -> max = s.size()/10, else -> max = 2
@@ -307,7 +307,7 @@ vector<int> perturb (vector<int> s, double *cost){
         s.erase(s.begin() + subseg2Start + subseg1Size, s.begin() + subseg2End + subseg1Size);
     }
 
-    *cost += delta;
+    *costOut = costIn + delta;
 
     return s;
 }
@@ -325,7 +325,7 @@ int main(int argc, char** argv) {
     const int I_ILS = (dimension >= 150) ? (dimension/2) : (dimension);
 
     vector<int> solutionAlpha, solutionBeta, solutionOmega;
-    double costAlpha, costBeta, costOmega = numeric_limits<double>::max();
+    double costAlpha, costBeta, costOmega = numeric_limits<double>::infinity();
 
     for(int i = 0; i < I_MAX; i++)
     {
@@ -345,7 +345,7 @@ int main(int argc, char** argv) {
                 iterILS = 0;
             }
 
-            solutionAlpha = perturb(solutionBeta, &costAlpha);
+            solutionAlpha = perturb(solutionBeta, costBeta, &costAlpha);
         }
 
         if(costBeta < costOmega){
